@@ -1,11 +1,13 @@
 const express = require('express')
 // express is another way to import libraries on the server side 
-const data = require('../data/weather.json');
 //importing weather.json file and applying it to a variable
 const cors = require('cors')
 //importing cors for security reasons 
 require("dotenv").config()
 // chat gpt 4
+const axios = require("axios")
+
+// const fetch = require('node-fetch');
 
 
 const app = express()
@@ -13,48 +15,60 @@ const app = express()
 app.use(cors())
 // implementing cors which is middlewear
 app.get("/weather", (req, res) => {
+    const key = "7824266f64ef4a98a7321ad86d61eaf3"
     // /weather is the created endpoint 
-    let {lat,lon,searchQuery}  = req.query;
+    let { lat, lon } = req.query;
     // setting the parameter as the property of the object i want to access
-    let Data = data.find(arr => {
-        // using the find() method on the data variable which represent the weather.json 
-        if (arr.city_name != searchQuery && arr.lon != lon && arr.lat != lat) {
-        // using a if statement to pull on specific item from the data/weather.json array 
-            return false;
-        } else {
-            return true
-        }
-    })
-    if(Data === undefined){
-        // if the Data doesnt has a value it means the process didnt work correctly
-        res.status(500).send("error")
-        // "res" stand for respond which is sent to the client side 
-        //"status" is a method to report a specific status code in this case 500
-        // "send" is a method to send custom messages to client side in this case error
-    }
-    let DataInfo = Data.data.map( arrr => {
-        // mapping through the item that pass the if statement which is Data
-        // but Data is an object so cant use the map method so im accessing Data.data
-        //Data.data is the array within the slected object 
-      let Place = new Forecast(arrr.valid_date, arrr.weather.description, Data.lat, Data.lon, Data.city_name)
-      // makes an instance of the forcast class within the map method to aceess the array items 
+    let WeatherData = axios.get(`https://api.weatherbit.io/v2.0/current?key=${key}&lat=${lat}&lon=${lon}`)
+        .then((response) => {
+            console.log(response)
+            let WeatherDataInfo = response.data.data.map(arr => {
+                let NewWeatherData = new Forecast(arr.datetime, arr.weather.description, arr.lat, arr.lon, arr.city_name)
+                return NewWeatherData
+            })
+            res.send(WeatherDataInfo)
+        })
 
-      return Place
-      // return the Place variable which represent the new instance of forcast
-    })
+    // let DataInfo = Data.data.map( arrr => {
+    //     // mapping through the item that pass the if statement which is Data
+    //     // but Data is an object so cant use the map method so im accessing Data.data
+    //     //Data.data is the array within the slected object 
+    //   let Place = new Forecast(arrr.valid_date, arrr.weather.description, Data.lat, Data.lon, Data.city_name)
+    //   // makes an instance of the forcast class within the map method to aceess the array items 
 
-    res.send(DataInfo)
-    // res.send() is a method to send data to the client side/front end
-    // in this case we are returning the Place from the map method which create the new instances 
-   
+    //   return Place
+    // return the Place variable which represent the new instance of forcast
+})
 
-}
-)
+app.get("/movies", (req, res) => {
+    const key = "f2fd90c52646bfddae4c299d330e18ee";
+    let { query } = req.query
+    let firstMoviesData = axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${query}`)
+        .then((response) => {
+            console.log("Here", response)
+            let MoviesData = response.data.results.map(arr => {
+                let NewWeatherData = new Movies(arr.original_title)
+                return NewWeatherData
+            })
+            res.json(MoviesData)
 
-class Forecast{
+            // res.send(MoviesData)
+        });
+})
+
+// res.send(DataInfo)
+// // res.send() is a method to send data to the client side/front end
+// in this case we are returning the Place from the map method which create the new instances 
+
+
+
+
+
+
+class Forecast {
     //create the class name forcast 
     //classes are used to create object
-    constructor(date,description,lat,lon,city_name){
+    constructor(date, description, lat, lon, city_name) {
         // creates a constructor and pass in parameters to represent the properties of the objects created 
         this.date = date
         this.description = description
@@ -65,5 +79,20 @@ class Forecast{
 
 }
 
+class Movies {
+
+    constructor(Title) {
+        this.Title = Title;
+
+
+    }
+
+}
+
+
+
+
+
+
 app.listen(3001)
-// app.listen method let you actually see what your site lokks like 
+// app.listen method let you actually see what your site lokks like

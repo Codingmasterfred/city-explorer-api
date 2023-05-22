@@ -14,6 +14,9 @@ const app = express()
 // setting a variable to use express
 app.use(cors())
 // implementing cors which is middlewear
+app.get("/",(req,res)=>{
+    res.send("U did It")
+})
 app.get("/weather", (req, res) => {
     const key = "7824266f64ef4a98a7321ad86d61eaf3"
     // /weather is the created endpoint 

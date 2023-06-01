@@ -7,7 +7,6 @@ exports.weather = (req, res) => {
     // setting the parameter as the property of the object I want to access
     let WeatherData = axios.get(`https://api.weatherbit.io/v2.0/current?key=${key}&lat=${lat}&lon=${lon}`)
         .then((response) => {
-            console.log(response);
             let WeatherDataInfo = response.data.data.map(arr => {
                 let NewWeatherData = new Forecast(arr.datetime, arr.weather.description, arr.lat, arr.lon, arr.city_name);
                 return NewWeatherData;

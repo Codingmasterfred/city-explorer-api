@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+
 // express is another way to import libraries on the server side 
 //importing weather.json file and applying it to a variable
 const cors = require('cors')
